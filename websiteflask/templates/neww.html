@@ -1,0 +1,115 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+<div id="myDiagramDiv" style="width:400px; height:400px;"></div>
+
+<!--
+  <script src="https://unpkg.com/gojs"></script>
+-->
+
+<script src="./static/script/gojs.js"></script>
+
+<script>
+  var myDiagram =
+    new go.Diagram("myDiagramDiv",  // create a Diagram for the HTML Div element
+    
+      { "clickCreatingTool.archetypeNodeData":{key:"node",text:"Node",color:"white"},
+       "undoManager.isEnabled": true });  // enable undo & redo
+
+  // define a simple Node template
+ 
+  myDiagram.nodeTemplate =
+    new go.Node("Auto")  // the Shape will automatically surround the TextBlock
+      // add a Shape and a TextBlock to this "Auto" Panel
+      .add(new go.Shape("RoundedRectangle",
+        { strokeWidth: 0, fill: "white" })  // no border; default fill is white
+        .bind("fill", "color"))  // Shape.fill is bound to Node.data.color
+      .add(new go.TextBlock({ margin: 8, stroke: "#333" })  // some room around the text
+        .bind("text", "key"));  // TextBlock.text is bound to Node.data.key
+
+  // but use the default Link template, by not setting Diagram.linkTemplate
+
+  // create the model data that will be represented by Nodes and Links
+
+var nodedata = [
+      { key: "Alpha", color: "lightblue" },
+      { key: "NewNode", color: "blue" },
+      { key: "Beta", color: "orange" },
+      { key: "Gamma", color: "lightgreen" },
+      { key: "Delta", color: "pink" }
+    ];
+  var linkdata =[
+      { from: "Alpha", to: "Beta" },
+      { from: "Alpha", to: "Gamma" },
+      //   { from: "Beta", to: "Beta" },
+      { from: "Gamma", to: "Delta" },
+      { from: "Delta", to: "Alpha" }
+    ];
+    var model = new go.GraphLinksModel( {
+          
+          nodeDataArray: nodedata,
+          linkDataArray: linkdata
+        });
+      
+   //    model.addNodeData(  );
+   //  model.
+       myDiagram.model = model;  
+
+   // myDiagram.model = new go.GraphLinksModel(
+ //  );
+
+  function function1() {
+    const node = myDiagram.findNodeForKey("Alpha");
+    myDiagram.select(node);
+    alert(myDiagram.model.toJson());
+    alert(node);
+
+    //  const shape = node.findObject("SHAPE")
+    node.fill(red);
+    //console.log(node.data);
+  }
+  function NewNode(){
+    let NodeName = prompt('Enter name for node');
+ let NodeColor = prompt('color');
+console.log(NodeName,NodeColor);
+   // for(let id = 1; id < nodedata.length; id++){
+       model.addNodeData( { key: NodeName, color: NodeColor } );
+      /*   }
+         for(let id = 1; id < linkdata.length; id++){
+          model.addLinkData( { from: linkdata[id].from, to: linkdata[id].to } );
+         }*/
+
+
+  //  myDiagram.({ key: "hello", color: "lightblue" });
+  }
+  function LinkNode(){
+    let NodeName = prompt('Enter name for node');
+ let NodeColor = prompt('enter name for goal node');
+console.log(NodeName,NodeColor);
+   // for(let id = 1; id < nodedata.length; id++){
+       model.addLinkData( { from: NodeName, to: NodeColor } );
+       
+      /*   }
+         for(let id = 1; id < linkdata.length; id++){
+          model.addLinkData( { from: linkdata[id].from, to: linkdata[id].to } );
+         }*/
+
+
+  //  myDiagram.({ key: "hello", color: "lightblue" });
+  }
+
+var modelAsText = myDiagram.model.toJson();
+var modelD = 1;
+
+</script>
+<button class="diagrambutton" onclick="NewNode()">new</button>
+<button class="diagrambutton" onclick="LinkNode()">link</button>
+<p style="color:white; font-size: large;"onclick="function1()"> Show properties of the diagram</p>
+
+
+
+</form>
+
+
+{% endblock %}
