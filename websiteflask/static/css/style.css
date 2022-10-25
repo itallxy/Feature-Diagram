@@ -1,23 +1,36 @@
 body {
-    background-color:#a8dadc;
+    background-color:#f0e8e8;
   }
   h1 {
               width:500px;
               height:200px;
               position: fixed;
-              top: 50%;
-              left: 40%;
+              top: 40%;
+              /*left: 40%;*/
+              right:60%;
               margin-top: -100px;
               margin-left: -100px;
-              color:white;
+              color:rgb(9, 3, 58);
               font-family:Cursive} 
    /* start navbar style */
+   b{
+    width:500px;
+    height:200px;
+    position: fixed;
+    top: 50%;
+    /*left: 40%;*/
+    right:60%;
+    margin-top: -100px;
+    margin-left: -100px;
+    color:rgb(9, 3, 58);
+    font-family:Serif} 
+
   ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background-color:#457b9d;
+    background-color:#3e3e6b;
   }
   
   li {
@@ -172,13 +185,14 @@ body {
   /* end login page style */
 
   .diagrambutton {
-    background-color: #e7e7e7; 
-    color: black;
-    border: none;
+    background-color: #3e3e6b; 
+    color: rgb(252, 246, 246);
+    border-style: ridge;
+    border-color: #3e3e6b;
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
+    font-size: 14px;
     margin: 4px 2px;
     cursor: pointer;
     width: 8%;
