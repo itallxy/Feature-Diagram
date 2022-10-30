@@ -8,108 +8,431 @@
   <script src="https://unpkg.com/gojs"></script>
 -->
 
+
 <script src="./static/script/gojs.js"></script>
+<script id="code">
+  function init() {
 
-<script>
-  var myDiagram =
-    new go.Diagram("myDiagramDiv",  // create a Diagram for the HTML Div element
-    
-      { "clickCreatingTool.archetypeNodeData":{key:"node",text:"Node",color:"white"},
-       "undoManager.isEnabled": true });  // enable undo & redo
 
-  // define a simple Node template
- 
-  myDiagram.nodeTemplate =
-    new go.Node("Auto")  // the Shape will automatically surround the TextBlock
-      // add a Shape and a TextBlock to this "Auto" Panel
-      .add(new go.Shape("RoundedRectangle",
-        { strokeWidth: 0, fill: "white" })  // no border; default fill is white
-        .bind("fill", "color"))  // Shape.fill is bound to Node.data.color
-      .add(new go.TextBlock({ margin: 8, stroke: "#333" })  // some room around the text
-        .bind("text", "key"));  // TextBlock.text is bound to Node.data.key
+    // Since 2.2 you can also author concise templates with method chaining instead of GraphObject.make
+    // For details, see https://gojs.net/latest/intro/buildingObjects.html
+    const $ = go.GraphObject.make;  // for conciseness in defining templates
+function addnew(d){
+let foo = prompt('Enter name for node');
+return foo; 
+}
+function addco(d){
 
-  // but use the default Link template, by not setting Diagram.linkTemplate
+let cole = prompt('Enter color for node');
+return  cole;
+}
+    myDiagram =
+      $(go.Diagram, "myDiagramDiv",  // create a Diagram for the DIV HTML element
+        {
+          // allow double-click in background to create a new node
 
-  // create the model data that will be represented by Nodes and Links
+          "clickCreatingTool.archetypeNodeData": {text : "Node" , color : "white"  },
 
-var nodedata = [
-      { key: "Alpha", color: "lightblue" },
-      { key: "NewNode", color: "blue" },
-      { key: "Beta", color: "orange" },
-      { key: "Gamma", color: "lightgreen" },
-      { key: "Delta", color: "pink" }
-    ];
-  var linkdata =[
-      { from: "Alpha", to: "Beta" },
-      { from: "Alpha", to: "Gamma" },
-      //   { from: "Beta", to: "Beta" },
-      { from: "Gamma", to: "Delta" },
-      { from: "Delta", to: "Alpha" }
-    ];
-    var model = new go.GraphLinksModel( {
-          
-          nodeDataArray: nodedata,
-          linkDataArray: linkdata
+          // allow Ctrl-G to call groupSelection()
+          "commandHandler.archetypeGroupData": { text: "Group", isGroup: true, color: "blue" },
+
+          // enable undo & redo
+          "undoManager.isEnabled": true,
+          maxScale: 3.25,
+          contentAlignment: go.Spot.Center,  // center the tree in the viewport
+          isReadOnly: false,  // don't allow user to change the diagram
+          "animationManager.isEnabled": true,
+          layout: $(go.TreeLayout,
+            { angle: 90, sorting: go.TreeLayout.SortingAscending }),
+          maxSelectionCount: 1 // only one node may be selected at a time in each diagram
+          // when the selection changes, update the myLocalDiagram view
+         
         });
+
+    // Define the appearance and behavior for Nodes:
+
+    // First, define the shared context menu for all Nodes, Links, and Groups.
+
+    // To simplify this code we define a function for creating a context menu button:
+    function makeButton(text, action, visiblePredicate) {
+      return $("ContextMenuButton",
+        $(go.TextBlock, text),
+        { click: action },
+        // don't bother with binding GraphObject.visible if there's no predicate
+        visiblePredicate ? new go.Binding("visible", "", (o, e) => o.diagram ? visiblePredicate(o, e) : false).ofObject() : {});
+    }
+
+    // a context menu is an Adornment with a bunch of buttons in them
+    var partContextMenu =
+      $("ContextMenu",
+        makeButton("Modify",
+          (e, obj) => {  // OBJ is this Button
+            var contextmenu = obj.part;  // the Button is in the context menu Adornment
+            var part = contextmenu.adornedPart;  // the adornedPart is the Part that the context menu adorns
+            // now can do something with PART, or with its data, or with the Adornment (the context menu)
+            if (part instanceof go.Link) alert(linkInfo(part));
+            else if (part instanceof go.Group) alert(groupInfo(contextmenu));
+            else (nodeInfo(part));
+          }),
+        makeButton("Cut",
+          (e, obj) => e.diagram.commandHandler.cutSelection(),
+          o => o.diagram.commandHandler.canCutSelection()),
+        makeButton("Copy",
+          (e, obj) => e.diagram.commandHandler.copySelection(),
+          o => o.diagram.commandHandler.canCopySelection()),
+        makeButton("Paste",
+          (e, obj) => e.diagram.commandHandler.pasteSelection(e.diagram.toolManager.contextMenuTool.mouseDownPoint),
+          o => o.diagram.commandHandler.canPasteSelection(o.diagram.toolManager.contextMenuTool.mouseDownPoint)),
+        makeButton("Delete",
+          (e, obj) => e.diagram.commandHandler.deleteSelection(),
+          o => o.diagram.commandHandler.canDeleteSelection()),
+        makeButton("Undo",
+          (e, obj) => e.diagram.commandHandler.undo(),
+          o => o.diagram.commandHandler.canUndo()),
+        makeButton("Redo",
+          (e, obj) => e.diagram.commandHandler.redo(),
+          o => o.diagram.commandHandler.canRedo()),
+        makeButton("Group",
+          (e, obj) => e.diagram.commandHandler.groupSelection(),
+          o => o.diagram.commandHandler.canGroupSelection()),
+        makeButton("Ungroup",
+          (e, obj) => e.diagram.commandHandler.ungroupSelection(),
+          o => o.diagram.commandHandler.canUngroupSelection())
+      );
+
+    function nodeInfo(d) {  // Tooltip info for a node data object
       
-   //    model.addNodeData(  );
-   //  model.
-       myDiagram.model = model;  
+      let foo = prompt('Enter name for node');
+      let cole = prompt('Enter color for node');
+      d.data.text=foo ;
+      d.data.color=cole;
+      d.updateTargetBindings();
+      var str = "Node " + d.key + ": " + d.text + "\n";
+      if (d.group)
+        str += "member of " + d.group;
+      else
+        str += "top-level node";
+      return str;
+    }
+    function nodeIn(d) {  // Tooltip info for a node data object
+      
+     
+      var str = "Node " + d.key + ": " + d.text + "\n";
+      if (d.group)
+        str += "member of " + d.group;
+      else
+        str += "top-level node";
+      return str;
+    }
+    // These nodes have text surrounded by a rounded rectangle
+    // whose fill color is bound to the node data.
+    // The user can drag a node by dragging its TextBlock label.
+    // Dragging from the Shape will start drawing a new link.
+    myDiagram.nodeTemplate =
+      $(go.Node, "Auto",
+        { locationSpot: go.Spot.Center },
+        $(go.Shape, "RoundedRectangle",
+          {
+            fill: "white", // the default fill, if there is no data bound value
+            portId: "", cursor: "pointer",  // the Shape is the port, not the whole Node
+            // allow all kinds of links from and to this port
+            fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+            toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
+          },
+          new go.Binding("fill", "color" )),
+        $(go.TextBlock,
+          {
+            font: "bold 14px sans-serif",
+            stroke: '#333',
+            margin: 6,  // make some extra space for the shape around the text
+            isMultiline: false,  // don't allow newlines in text
+            editable: true  // allow in-place editing by user
+          },
+          new go.Binding("text", "text").makeTwoWay()),  // the label shows the node data's text
+        { // this tooltip Adornment is shared by all nodes
+          toolTip:
+            $("ToolTip",
+              $(go.TextBlock, { margin: 4 },  // the tooltip shows the result of calling nodeInfo(data)
+                new go.Binding("text", "", nodeIn))
+            ),
+          // this context menu Adornment is shared by all nodes
+          contextMenu: partContextMenu
+        }
+      );
 
-   // myDiagram.model = new go.GraphLinksModel(
- //  );
+    // Define the appearance and behavior for Links:
 
-  function function1() {
-    const node = myDiagram.findNodeForKey("Alpha");
-    myDiagram.select(node);
-    alert(myDiagram.model.toJson());
-    alert(node);
+    function linkInfo(d) {
+      let foo = prompt('Enter relation');
+      d.data.relationship=foo;
+      d.updateTargetBindings();
+        // Tooltip info for a link data object
+      return "Link:\nfrom " + d.from + " to " + d.to + " relationship "+foo;
+      
+    }
+    function checkRel(r){
 
-    //  const shape = node.findObject("SHAPE")
-    node.fill(red);
-    //console.log(node.data);
-  }
-  function NewNode(){
-    let NodeName = prompt('Enter name for node');
- let NodeColor = prompt('color');
-console.log(NodeName,NodeColor);
-   // for(let id = 1; id < nodedata.length; id++){
-       model.addNodeData( { key: NodeName, color: NodeColor } );
-      /*   }
-         for(let id = 1; id < linkdata.length; id++){
-          model.addLinkData( { from: linkdata[id].from, to: linkdata[id].to } );
-         }*/
+  if(r === "need")
+  return "black";
+  else
+  if(r==="noNeed")
+  return "white";
+  else
+  return "red";
 
-
-  //  myDiagram.({ key: "hello", color: "lightblue" });
-  }
-  function LinkNode(){
-    let NodeName = prompt('Enter name for node');
- let NodeColor = prompt('enter name for goal node');
-console.log(NodeName,NodeColor);
-   // for(let id = 1; id < nodedata.length; id++){
-       model.addLinkData( { from: NodeName, to: NodeColor } );
+}
+    // The link shape and arrowhead have their stroke brush data bound to the "color" property
+   myDiagram.linkTemplate =
+      $(go.Link,
+      
+      { selectable: true },
+        $(go.Shape),
+       // { toShortLength: 3, relinkableFrom: true, relinkableTo: true },  // allow the user to relink existing links
        
-      /*   }
-         for(let id = 1; id < linkdata.length; id++){
-          model.addLinkData( { from: linkdata[id].from, to: linkdata[id].to } );
-         }*/
+          $(go.Shape, { scale: 1.3},
+          
+          new go.Binding("fromArrow",convertFromArrow  ),
+          new go.Binding("fill","relationship",checkRel  )
+          ),
+        $(go.Shape, { scale: 0.78},
+          new go.Binding("toArrow", convertToArrow ),
+          new go.Binding("fill","relationship",checkRel  ),),
+        { // this tooltip Adornment is shared by all links
+          toolTip:
+            $("ToolTip",
+              $(go.TextBlock, { margin: 4 },  // the tooltip shows the result of calling linkInfo(data)
+                new go.Binding("text", "", linkInfo))
+            ),
+          // the same context menu Adornment is shared by all links
+          contextMenu: partContextMenu
+        }
+      );
+      function convertIsTreeLink(r) {
+      return r === "generalization";
+    }
+
+    function convertFromArrow(r) {
+      
+       return "RoundedTriangle";
+      
+    }
+
+    function convertToArrow(r) {
+      switch (r) {
+        case "generalization": return "Circle";
+        case "aggregation": return "Circle";
+        default: return "Circle";
+      }
+    }
+/* myDiagram.nodeTemplate =
+$(go.Node, "Auto",
+        {
+          locationSpot: go.Spot.Center,
+          fromSpot: go.Spot.AllSides,
+          toSpot: go.Spot.AllSides
+        },
+    // the Shape will automatically surround the TextBlock
+    // add a Shape and a TextBlock to this "Auto" Panel
+    $(go.Shape,"RoundedRectangle",
+      { strokeWidth: 0, fill: "white" } , // no border; default fill is white
+      new go.Binding("fill", "color")) , // Shape.fill is bound to Node.data.color
+    $(go.TextBlock,"Properties",
+    { margin: 8, stroke: "#333" }, // some room around the text
+    new go.Binding("text", "key")));  // TextBlock.text is bound to Node.data.key
+*/
+// but use the default Link template, by not setting Diagram.linkTemplate
 
 
-  //  myDiagram.({ key: "hello", color: "lightblue" });
+// create the model data that will be represented by Nodes and Links
+/*myDiagram.linkTemplate =
+      $(go.Link,
+      
+      { selectable: true },
+        $(go.Shape),
+        $(go.Shape, { scale: 1.3},
+          new go.Binding("fill","relationship",checkRel  ),
+          new go.Binding("fromArrow",convertFromArrow  )),
+        $(go.Shape, { scale: 0.78, fill: sss},
+        new go.Binding("fill","relationship",checkRel  ),
+          new go.Binding("toArrow", convertToArrow ))
+          );*/
+/*var nodedata = [
+    { key: "Alpha", color: "lightblue" },
+    { key: "NewNode",parent:"Alpha", color: "blue",relationship:"need" },
+    { key: "Beta",parent:"Gamma", color: "orange" },
+    { key: "Gamma",parent:"NewNode", color: "lightgreen",relationship:"need" },
+    { key: "Delta",parent:"Alpha", color: "pink" }
+  ];
+var linkdata =[
+    { from: "Alpha", to: "Beta" },
+    { from: "Alpha", to: "Gamma" },
+    //   { from: "Beta", to: "Beta" },
+    { from: "Gamma", to: "Delta" },
+    { from: "Delta", to: "Alpha" }
+  ];
+  var model = new go.TreeModel( {
+        
+        nodeDataArray: nodedata,
+        linkDataArray: linkdata
+      });
+    */
+    // Define the appearance and behavior for Groups:
+
+    function groupInfo(adornment) {  // takes the tooltip or context menu, not a group node data object
+      var g = adornment.adornedPart;  // get the Group that the tooltip adorns
+      var mems = g.memberParts.count;
+      var links = 0;
+      g.memberParts.each(part => {
+        if (part instanceof go.Link) links++;
+      });
+      return "Group " + g.data.key + ": " + g.data.text + "\n" + mems + " members including " + links + " links";
+    }
+
+    // Groups consist of a title in the color given by the group node data
+    // above a translucent gray rectangle surrounding the member parts
+    myDiagram.groupTemplate =
+      $(go.Group, "Vertical",
+        {
+          selectionObjectName: "PANEL",  // selection handle goes around shape, not label
+          ungroupable: true  // enable Ctrl-Shift-G to ungroup a selected Group
+        },
+        $(go.TextBlock,
+          {
+            //alignment: go.Spot.Right,
+            font: "bold 19px sans-serif",
+            isMultiline: false,  // don't allow newlines in text
+            editable: true  // allow in-place editing by user
+          },
+          new go.Binding("text", "text").makeTwoWay(),
+          new go.Binding("stroke", "color")),
+        $(go.Panel, "Auto",
+          { name: "PANEL" },
+          $(go.Shape, "Rectangle",  // the rectangular shape around the members
+            {
+              fill: "rgba(128,128,128,0.2)", stroke: "gray", strokeWidth: 3,
+              portId: "", cursor: "pointer",  // the Shape is the port, not the whole Node
+              // allow all kinds of links from and to this port
+              fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+              toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
+            }),
+          $(go.Placeholder, { margin: 10, background: "transparent" })  // represents where the members are
+        ),
+        { // this tooltip Adornment is shared by all groups
+          toolTip:
+            $("ToolTip",
+              $(go.TextBlock, { margin: 4 },
+                // bind to tooltip, not to Group.data, to allow access to Group properties
+                new go.Binding("text", "", groupInfo).ofObject())
+            ),
+          // the same context menu Adornment is shared by all groups
+          contextMenu: partContextMenu
+        }
+      );
+
+    // Define the behavior for the Diagram background:
+
+    function diagramInfo(model) {  // Tooltip info for the diagram's model
+      return "Model:\n" + model.nodeDataArray.length + " nodes, " + model.linkDataArray.length + " links";
+    }
+
+    // provide a tooltip for the background of the Diagram, when not over any Part
+    myDiagram.toolTip =
+      $("ToolTip",
+        $(go.TextBlock, { margin: 4 },
+          new go.Binding("text", "", diagramInfo))
+      );
+
+    // provide a context menu for the background of the Diagram, when not over any Part
+    myDiagram.contextMenu =
+      $("ContextMenu",
+        makeButton("Paste",
+          (e, obj) => e.diagram.commandHandler.pasteSelection(e.diagram.toolManager.contextMenuTool.mouseDownPoint),
+          o => o.diagram.commandHandler.canPasteSelection(o.diagram.toolManager.contextMenuTool.mouseDownPoint)),
+        makeButton("Undo",
+          (e, obj) => e.diagram.commandHandler.undo(),
+          o => o.diagram.commandHandler.canUndo()),
+        makeButton("Redo",
+          (e, obj) => e.diagram.commandHandler.redo(),
+          o => o.diagram.commandHandler.canRedo())
+      );
+      function fun(){
+       var foo = prompt('Enter name for node');
+       var bar = prompt('color');
+       console.log(foo,bar);
+ // for(let id = 1; id < nodedata.length; id++){
+        model.addNodeData( { key: 4 ,text: foo, color: bar } );
+    /*   }
+       for(let id = 1; id < linkdata.length; id++){
+        model.addLinkData( { from: linkdata[id].from, to: linkdata[id].to } );
+       }*/
+
+
+//  myDiagram.({ key: "hello", color: "lightblue" });
+}
+    // Create the Diagram's Model:
+    var nodedata = [
+    { key:1,text: "Alpha", color: "lightblue" },
+    { key:2,text: "NewNode", color: "blue"},
+    { key:3,text: "Beta", color: "orange" },
+    { key:4,text: "Gamma", color: "lightgreen" },
+    { key:5,text: "Delta", color: "pink" }
+  ];
+   /* var nodeDataArray = [
+      { key: 1, text: "Alpha", color: "lightblue" },
+      { key: 2, text: "Beta", color: "orange" ,relationship:"need"},
+      { key: 3, text: "Gamma", color: "lightgreen", group: 5,relationship:"need" },
+      { key: 4, text: "Delta", color: "pink", group: 5 ,relationship:"noNeed"},
+      { key: 5, text: "Epsilon", color: "green", isGroup: true }
+    ];*/
+    var linkDataArray = [
+      { from: 1, to: 2, relationship:"need" },
+      { from: 2, to: 2 },
+      { from: 3, to: 4, color: "green" ,relationship:"noNeed"},
+      { from: 3, to: 1, color: "purple" ,relationship:"need"}
+    ];
+    var model = new go.GraphLinksModel(nodedata, linkDataArray);
+    myDiagram.model=model;
+  
   }
+  window.addEventListener('DOMContentLoaded', init,fun1);
+  
+function fun1(){
+  const node = myDiagram.findNodeForKey(1);
+  myDiagram.select(node);
+  const mode=document.getElementById('t1');
+  mode.innerHTML=myDiagram.model.toJson();
+ // alert(myDiagram.model.toJson());
+ // alert(node);
+  let foo = prompt('Enter ID for Graph as number : ');
+// let bar = prompt('enter name for goal node');
+const id=document.getElementById('idgraph');
+id.innerHTML=foo;
+// console.log(foo,bar);
 
-var modelAsText = myDiagram.model.toJson();
-var modelD = 1;
+ // for(let id = 1; id < nodedata.length; id++){
+//model.addNodeData( { key: foo, parent: bar } );
+     
+    /*   }
+       for(let id = 1; id < linkdata.length; id++){
+        model.addLinkData( { from: linkdata[id].from, to: linkdata[id].to } );
+       }*/
 
+
+//  myDiagram.({ key: "hello", color: "lightblue" });
+}
 </script>
-<button class="diagrambutton" onclick="NewNode()">new</button>
-<button class="diagrambutton" onclick="LinkNode()">link</button>
-<p style="color:white; font-size: large;"onclick="function1()"> Show properties of the diagram</p>
 
 
 
+<form action="/save" method="post">
+<button class="diagrambutton" onclick="fun1()">Save</button>
+  <textarea name="t1" id="t1" ></textarea>
+  <textarea id="idgraph" name="idgraph"></textarea>
 </form>
-
+<div>
+  
+      <output>{{ message }}
+  
+      </output></div>
 
 {% endblock %}
