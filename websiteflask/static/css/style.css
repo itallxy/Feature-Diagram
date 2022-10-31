@@ -196,5 +196,21 @@ body {
     margin: 4px 2px;
     cursor: pointer;
     width: 8%;
+    margin-left: 88ch;
+    margin-right: -55ch;
+    margin-top: 4ch;
+    
   }
-  
+
+    #myDiagramDiv {
+    margin: auto;
+  }
+  #idgraph {
+    margin-left: 40ch;
+    margin-right: -50ch;
+    margin-top: 3ch;
+  }
+  #t1 {
+    margin-left: 80ch;
+    margin-right: -40ch;
+  }
