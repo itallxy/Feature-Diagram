@@ -1,8 +1,12 @@
-from flask import Flask, render_template
+from email import message
+from multiprocessing import connection
 import sqlite3
- 
-conn = sqlite3.connect('mydb.db')
-print ("Opened database successfully")
+
+from flask import Flask, render_template,request
+import os
+
+currdir=os.path.dirname(os.path.abspath(__file__))
+
  
 
 app = Flask(__name__)
@@ -28,6 +32,20 @@ def login():
 @app.route('/neww', endpoint ='neww')
 def neww():
     return render_template('neww.html')
+
+
+@app.route('/save',methods=["POST"])
+def save():
+    if request.method =='POST':
+        jose=request.form.get('t1')
+        nmid=request.form.get('idgraph')
+        connection=sqlite3.connect("./featureDiagram.db")
+        cursor=connection.cursor()
+        q1="INSERT INTO FeatureDiagarm VALUES ('{N}','{P}')".format(N=nmid,P=jose)
+        cursor.execute(q1)
+        connection.commit()
+        return render_template('neww.html')
+    return render_template('neww.html',message="")
 
 @app.route('/team', endpoint ='team')
 def team():
