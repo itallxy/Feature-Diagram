@@ -224,58 +224,6 @@ return  cole;
         default: return "Circle";
       }
     }
-/* myDiagram.nodeTemplate =
-$(go.Node, "Auto",
-        {
-          locationSpot: go.Spot.Center,
-          fromSpot: go.Spot.AllSides,
-          toSpot: go.Spot.AllSides
-        },
-    // the Shape will automatically surround the TextBlock
-    // add a Shape and a TextBlock to this "Auto" Panel
-    $(go.Shape,"RoundedRectangle",
-      { strokeWidth: 0, fill: "white" } , // no border; default fill is white
-      new go.Binding("fill", "color")) , // Shape.fill is bound to Node.data.color
-    $(go.TextBlock,"Properties",
-    { margin: 8, stroke: "#333" }, // some room around the text
-    new go.Binding("text", "key")));  // TextBlock.text is bound to Node.data.key
-*/
-// but use the default Link template, by not setting Diagram.linkTemplate
-
-
-// create the model data that will be represented by Nodes and Links
-/*myDiagram.linkTemplate =
-      $(go.Link,
-      
-      { selectable: true },
-        $(go.Shape),
-        $(go.Shape, { scale: 1.3},
-          new go.Binding("fill","relationship",checkRel  ),
-          new go.Binding("fromArrow",convertFromArrow  )),
-        $(go.Shape, { scale: 0.78, fill: sss},
-        new go.Binding("fill","relationship",checkRel  ),
-          new go.Binding("toArrow", convertToArrow ))
-          );*/
-/*var nodedata = [
-    { key: "Alpha", color: "lightblue" },
-    { key: "NewNode",parent:"Alpha", color: "blue",relationship:"need" },
-    { key: "Beta",parent:"Gamma", color: "orange" },
-    { key: "Gamma",parent:"NewNode", color: "lightgreen",relationship:"need" },
-    { key: "Delta",parent:"Alpha", color: "pink" }
-  ];
-var linkdata =[
-    { from: "Alpha", to: "Beta" },
-    { from: "Alpha", to: "Gamma" },
-    //   { from: "Beta", to: "Beta" },
-    { from: "Gamma", to: "Delta" },
-    { from: "Delta", to: "Alpha" }
-  ];
-  var model = new go.TreeModel( {
-        
-        nodeDataArray: nodedata,
-        linkDataArray: linkdata
-      });
-    */
     // Define the appearance and behavior for Groups:
 
     function groupInfo(adornment) {  // takes the tooltip or context menu, not a group node data object
@@ -359,15 +307,9 @@ var linkdata =[
        var foo = prompt('Enter name for node');
        var bar = prompt('color');
        console.log(foo,bar);
- // for(let id = 1; id < nodedata.length; id++){
+ 
         model.addNodeData( { key: 4 ,text: foo, color: bar } );
-    /*   }
-       for(let id = 1; id < linkdata.length; id++){
-        model.addLinkData( { from: linkdata[id].from, to: linkdata[id].to } );
-       }*/
 
-
-//  myDiagram.({ key: "hello", color: "lightblue" });
 }
     // Create the Diagram's Model:
     var nodedata = [
@@ -377,13 +319,7 @@ var linkdata =[
     { key:4,text: "Gamma", color: "lightgreen" },
     { key:5,text: "Delta", color: "pink" }
   ];
-   /* var nodeDataArray = [
-      { key: 1, text: "Alpha", color: "lightblue" },
-      { key: 2, text: "Beta", color: "orange" ,relationship:"need"},
-      { key: 3, text: "Gamma", color: "lightgreen", group: 5,relationship:"need" },
-      { key: 4, text: "Delta", color: "pink", group: 5 ,relationship:"noNeed"},
-      { key: 5, text: "Epsilon", color: "green", isGroup: true }
-    ];*/
+
     var linkDataArray = [
       { from: 1, to: 2, relationship:"need" },
       { from: 2, to: 2 },
@@ -401,28 +337,27 @@ function fun1(){
   myDiagram.select(node);
   const mode=document.getElementById('t1');
   mode.innerHTML=myDiagram.model.toJson();
- // alert(myDiagram.model.toJson());
- // alert(node);
+
   let foo = prompt('Enter ID for Graph as number : ');
-// let bar = prompt('enter name for goal node');
+
 const id=document.getElementById('idgraph');
 id.innerHTML=foo;
-// console.log(foo,bar);
 
- // for(let id = 1; id < nodedata.length; id++){
-//model.addNodeData( { key: foo, parent: bar } );
-     
-    /*   }
-       for(let id = 1; id < linkdata.length; id++){
-        model.addLinkData( { from: linkdata[id].from, to: linkdata[id].to } );
-       }*/
-
-
-//  myDiagram.({ key: "hello", color: "lightblue" });
 }
 </script>
 
+<div class="btn_wrap" style="margin-left: 70ch;margin-top: 2ch;">
+  <span>Share</span>
+  <div class="container">
+    <a style="color:black"href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fparse.com"><i class="fa fa-facebook-f"></i></a>
+    <a style="color:black"href="http://www.twitter.com/share?url=http://www.google.com/"> <i class="fa fa-twitter"></i></a>
+    <a style="color:black"href="https://www.instagram.com/?url=https://www.drdrop.co/"> <i class="fa fa-instagram"></i></a>
+    <a style="color:black"href="whatsapp://send?text=The text to share!" data-action="share/whatsapp/share"><i class="fa fa-github"></i></a>
+  </div>
+</div>
 
+
+<a href="https://dribbble.com/YancyMin" class="dr-url" target="_blank"><img class="dr" src="https://cdn.dribbble.com/assets/logo-footer-hd-a05db77841b4b27c0bf23ec1378e97c988190dfe7d26e32e1faea7269f9e001b.png" alt=""></a>
 
 <form action="/save" method="post">
 <button class="diagrambutton" onclick="fun1()">Save</button><br>
