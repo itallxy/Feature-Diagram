@@ -172,10 +172,10 @@ return  cole;
     }
     function checkRel(r){
 
-  if(r === "need")
+  if(r === "mandatory")
   return "black";
   else
-  if(r==="noNeed")
+  if(r==="optional")
   return "white";
   else
   return "red";
@@ -323,8 +323,8 @@ return  cole;
     var linkDataArray = [
       { from: 1, to: 2, relationship:"need" },
       { from: 2, to: 2 },
-      { from: 3, to: 4, color: "green" ,relationship:"noNeed"},
-      { from: 3, to: 1, color: "purple" ,relationship:"need"}
+      { from: 3, to: 4, color: "green" ,relationship:"optional"},
+      { from: 3, to: 1, color: "purple" ,relationship:"mandatory"}
     ];
     var model = new go.GraphLinksModel(nodedata, linkDataArray);
     myDiagram.model=model;
