@@ -1,12 +1,8 @@
 import sqlite3  
 
-  
-
 conn = sqlite3.connect('featureDiagram.db')
 
 print ("Opened database successfully")
-
-
 
 conn.execute('''CREATE TABLE if not exists FeatureDiagarm
 
@@ -18,11 +14,7 @@ conn.execute('''CREATE TABLE if not exists FeatureDiagarm
 
 print ("Table created successfully")
 
-
-
 conn.close()
-
-
 
 conn = sqlite3.connect('featureDiagram.db')
 
@@ -37,16 +29,11 @@ conn.execute("INSERT INTO FeatureDiagarm (ID,JSON_VALUE)
 '''
 
 
-
-
-
 conn.commit()
 
 print ("Records created successfully")
 
 conn.close()
-
-
 
 
 

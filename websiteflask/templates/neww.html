@@ -377,8 +377,9 @@ id.innerHTML=foo;
       <script>
         function generatePDF() {
           const element = document.getElementById("invoice");
+          const graphh = document.getElementById("myDiagramDiv")
           html2pdf()
-          .from(element)
+          .from(myDiagramDiv)
           .save();
         }
       </script>
