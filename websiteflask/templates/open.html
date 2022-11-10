@@ -1,0 +1,62 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+<script>
+    function fun33(idd){
+// alart(mf );
+const da=JSON.stringify(idd);
+/*const dd=$.ajax({
+    data: JSON.stringify(da),
+    type : "POST",
+    url : "/drow",
+    contentType:"application/json",
+    /*success: function(html){
+        $("#response").html(data);
+    }*/
+   /* success: function(data){
+        $.ajax({
+            data : JSON.stringify(data),
+            type : "GET",
+            url : "/neww"
+        });*/
+
+    //}
+//});
+
+
+const hg=document.getElementById("TEx");
+hg.innerHTML=idd;
+
+    }
+</script>
+
+  <table border="1">
+    
+      <tr>
+        <td>ID</td>
+        <td>DataJSON</td>
+      </tr>
+    {%for diagram in diagrams %}
+    <tr>
+      <td id="{{diagram[0]}}">
+        {{diagram[0]}}
+      </td>
+      <td id="t{{diagram[0]}}">
+        {{diagram[1]}}
+      </td>
+      <td>
+        <form action="/drow" method="post">
+        <button id="btn{{diagram[0]}}"  onclick="fun33('{{diagram[0]}}')">Select</button> 
+        
+      </td>
+    </tr>
+  
+  {%endfor%}
+</table>
+
+<p>Selected is : </p>
+<textarea id="TEx" name="TEx"></textarea>
+</form>
+
+{% endblock %}
